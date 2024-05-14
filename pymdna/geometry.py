@@ -68,6 +68,7 @@ class ReferenceBase:
         b_D = np.cross(b_L, b_N, axis=1)
         
         return np.array([b_R, b_D, b_L, b_N])
+        #return np.array([b_R, -b_D, -b_L, -b_N])
 
     def plot_baseframe(self,atoms=True, frame=True, ax=None,length=1):
 
@@ -233,7 +234,8 @@ class NucleicFrames:
         translational_vector_mid_frame = np.einsum('ijk,ik->ij', (origin_B - origin_A)[:, None] * mid_frame_rotation, np.ones((mid_frame_rotation.shape[0], 3)))
         
         # Fix direction of magnitudes and convert to degrees (if taking the negative of halfway_rotation_matrix, then it doesn't need to be multiplied by -1, but that screws with the orientation of the mean reference mid frame)
-        sign = 1 #if is_step else -1  # for the base pair paramters 
+        #sign = 1 #if is_step else -1  # for the base pair paramters 
+        sign = 1
         # concatenate the translational and rotational vectors and multiply by 10 to convert to angstroms and degrees
         params = sign*np.concatenate((translational_vector_mid_frame*10, np.rad2deg(rotation_mid_frame)), axis=1)
         return params.reshape(original_shape[0], original_shape[1], 6).swapaxes(0, 1)

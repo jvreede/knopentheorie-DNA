@@ -81,7 +81,12 @@ class RigidBody:
         omega_norm = np.linalg.norm(omega, axis=-1, keepdims=True)
 
         # Add check for RuntimeWarning: invalid value encountered in divide
-        omega_normalized = np.where(omega_norm != 0, omega / omega_norm, omega)
+        # omega_normalized = np.where(omega_norm != 0, omega / omega_norm, omega)
+
+        # Prevent division by zero by using np.divide with the 'where' parameter
+        epsilon = 1e-10
+        omega_normalized = np.divide(omega, omega_norm, where=(omega_norm > epsilon), out=np.zeros_like(omega))
+
 
         # Compute the angle of rotation
         theta = omega_norm.squeeze()
@@ -102,6 +107,54 @@ class RigidBody:
         ]).transpose((2, 0, 1))
 
         return rotation_matrix
+    
+
+
+    @staticmethod
+    def get_rotation_matrix(omega):
+        # Calculate the norm of each vector in the batch
+        omega_norm = np.linalg.norm(omega, axis=-1, keepdims=True)
+        
+        # Avoid division by zero issues by setting a small epsilon
+        epsilon = 1e-10
+        #omega_normalized = np.where(omega_norm > epsilon, omega / omega_norm, 0)
+        # Prevent division by zero by using np.divide with the 'where' parameter
+        omega_normalized = np.divide(omega, omega_norm, where=(omega_norm > epsilon), out=np.zeros_like(omega))
+
+
+        # Compute the angle of rotation, should be an array
+        theta = omega_norm.squeeze()
+
+        # Components of the Euler vector
+        wx, wy, wz = omega_normalized[..., 0], omega_normalized[..., 1], omega_normalized[..., 2]
+
+        # Trigonometric components
+        cos_theta = np.cos(theta)
+        sin_theta = np.sin(theta)
+        one_minus_cos_theta = 1 - cos_theta
+
+        # Building the rotation matrix
+        r00 = cos_theta + wx * wx * one_minus_cos_theta
+        r01 = wx * wy * one_minus_cos_theta - wz * sin_theta
+        r02 = wx * wz * one_minus_cos_theta + wy * sin_theta
+        r10 = wx * wy * one_minus_cos_theta + wz * sin_theta
+        r11 = cos_theta + wy**2 * one_minus_cos_theta
+        r12 = wy * wz * one_minus_cos_theta - wx * sin_theta
+        r20 = wx * wz * one_minus_cos_theta - wy * sin_theta
+        r21 = wy * wz * one_minus_cos_theta + wx * sin_theta
+        r22 = cos_theta + wz**2 * one_minus_cos_theta
+
+        # Combining into a single array, handling each vector's matrix
+        rotation_matrix = np.stack([r00, r01, r02, 
+                                    r10, r11, r12, 
+                                    r20, r21, r22], axis=-1).reshape(-1, 3, 3)
+
+        # Handle zero vectors by replacing their matrices with identity matrices
+        identity_matrices = np.eye(3).reshape((1, 3, 3))
+        rotation_matrix[theta < epsilon, :, :] = identity_matrices
+
+        return rotation_matrix
+
     
     @staticmethod
     def rotate_vector(v, k, theta):
@@ -322,6 +375,7 @@ class Shapes:
 
 # Some helper functions for DNA analysis
     
+
 def get_sequence_letters(traj):
     """List with nucleobase letter codes of first strand"""
     bases = ['DA','DT','DG','DC']  
@@ -349,5 +403,4 @@ def get_base_pair_dict(traj):
 def get_data_file_path(relative_path):
     base_path = os.path.dirname(__file__)  # Gets the directory where the script is located
     return os.path.join(base_path, relative_path)
-
 

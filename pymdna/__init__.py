@@ -3,8 +3,8 @@ from .spline import SplineFrames, Twister
 from .geometry import ReferenceBase, NucleicFrames
 from .generators import SequenceGenerator, StructureGenerator
 from .modifications import Mutate, Hoogsteen 
-from .analysis import GrooveAnalysis, ContactCount
-from .utils import get_sequence_letters, get_base_pair_letters
+from .analysis import GrooveAnalysis, TorsionAnalysis, ContactCount
+
 import numpy as np
 
 def check_input(sequence=None, n_bp=None):

@@ -233,152 +233,152 @@ class GrooveAnalysis:
         return groove_depths_base_pair_level, groove_depths_half_way
 
 
-# class TorsionAnalysis:
-#     """
-#     torsions = mdna.TorsionAnalysis(traj)
-#     epsi, zeta = torsions.compute_BI_BII()
-#     B_state = torsions.B_state 
-#     epsi.shape, zeta.shape, B_state.shape
-#     plt.plot(B_state)
-#     """
+class TorsionAnalysis:
+    """
+    torsions = mdna.TorsionAnalysis(traj)
+    epsi, zeta = torsions.compute_BI_BII()
+    B_state = torsions.B_state 
+    epsi.shape, zeta.shape, B_state.shape
+    plt.plot(B_state)
+    """
 
-#     def __init__(self, traj,degrees=True):
-#         self.dna = self.load_trajectory_and_slice_dna(traj)
-#         self.epsilon, self.zeta = self.compute_BI_BII(degrees=degrees)
-#         self.B_state = self.get_B_state(self.epsilon - self.zeta)
+    def __init__(self, traj,degrees=True):
+        self.dna = self.load_trajectory_and_slice_dna(traj)
+        self.epsilon, self.zeta = self.compute_BI_BII(degrees=degrees)
+        self.B_state = self.get_B_state(self.epsilon - self.zeta)
 
-#     def load_trajectory_and_slice_dna(self,traj):
-#         """ Load trajectory's topology and slice DNA part """
-#         dna = traj.atom_slice(traj.top.select('resname DG DC DA DT'))
-#         return dna
+    def load_trajectory_and_slice_dna(self,traj):
+        """ Load trajectory's topology and slice DNA part """
+        dna = traj.atom_slice(traj.top.select('resname DG DC DA DT'))
+        return dna
         
-#     def get_backbone_indices(self, chainid, ref_atoms):
-#         indices = []
-#         # find torsions based on the epsilon and zeta atoms
-#         # finally map the torsions for all base steps 
-#         if chainid == 0:
-#             residues = self.dna.top._chains[chainid].residues
-#         else:
-#             residues = self.dna.top._chains[chainid]._residues
+    def get_backbone_indices(self, chainid, ref_atoms):
+        indices = []
+        # find torsions based on the epsilon and zeta atoms
+        # finally map the torsions for all base steps 
+        if chainid == 0:
+            residues = self.dna.top._chains[chainid].residues
+        else:
+            residues = self.dna.top._chains[chainid]._residues
             
-#         for res in residues:
-#             for at in res.atoms:
-#                 if at.name in ref_atoms:
-#                     indices.append(at)
-#         return indices
+        for res in residues:
+            for at in res.atoms:
+                if at.name in ref_atoms:
+                    indices.append(at)
+        return indices
 
-#     def get_torsions(self, indices, ref_atoms):
-#         # Find the chunks based on ref_atoms
-#         torsions = []
-#         i = 0
-#         while i < len(indices):
-#             ref = [at.name for at in indices[i:i+len(ref_atoms)]]
-#             if ref == ref_atoms:
-#                 torsions.append(indices[i:i+len(ref_atoms)])
-#                 i += len(ref_atoms)
-#             else:
-#                 i += 1
-#         return torsions
+    def get_torsions(self, indices, ref_atoms):
+        # Find the chunks based on ref_atoms
+        torsions = []
+        i = 0
+        while i < len(indices):
+            ref = [at.name for at in indices[i:i+len(ref_atoms)]]
+            if ref == ref_atoms:
+                torsions.append(indices[i:i+len(ref_atoms)])
+                i += len(ref_atoms)
+            else:
+                i += 1
+        return torsions
 
-#     def get_torsion_indices(self, chainid, ref_atoms):
-#         indices = self.get_backbone_indices(chainid, ref_atoms)
-#         torsions = self.get_torsions(indices, ref_atoms)
-#         return torsions
+    def get_torsion_indices(self, chainid, ref_atoms):
+        indices = self.get_backbone_indices(chainid, ref_atoms)
+        torsions = self.get_torsions(indices, ref_atoms)
+        return torsions
 
-#     def convert_torsion_indices_to_atom_indices(self,torsion_indices):
-#         atom_indices = []
-#         for torsion in torsion_indices:
-#             atom_indices.append([at.index for at in torsion])
-#         return atom_indices
+    def convert_torsion_indices_to_atom_indices(self,torsion_indices):
+        atom_indices = []
+        for torsion in torsion_indices:
+            atom_indices.append([at.index for at in torsion])
+        return atom_indices
 
-#     def compute_BI_BII(self,degrees=True):
+    def compute_BI_BII(self,degrees=True):
 
-#         epsilon_atoms = ["C4'","C3'","O3'","P"] 
-#         zeta_atoms = ["C3'","O3'","P","O5'"]
+        epsilon_atoms = ["C4'","C3'","O3'","P"] 
+        zeta_atoms = ["C3'","O3'","P","O5'"]
 
-#         epsi_0 = self.get_torsion_indices(0, epsilon_atoms)
-#         epsi_1 = self.get_torsion_indices(1, epsilon_atoms)
-#         zeta_0 = self.get_torsion_indices(0, zeta_atoms)
-#         zeta_1 = self.get_torsion_indices(1, zeta_atoms)
+        epsi_0 = self.get_torsion_indices(0, epsilon_atoms)
+        epsi_1 = self.get_torsion_indices(1, epsilon_atoms)
+        zeta_0 = self.get_torsion_indices(0, zeta_atoms)
+        zeta_1 = self.get_torsion_indices(1, zeta_atoms)
 
-#         print(len(epsi_0), len(epsi_1), len(zeta_0), len(zeta_1))
+        print(len(epsi_0), len(epsi_1), len(zeta_0), len(zeta_1))
 
-#         # From here only the antisense strand is used
-#         e_torsion_indices = self.convert_torsion_indices_to_atom_indices(epsi_1)
-#         z_torsion_indices = self.convert_torsion_indices_to_atom_indices(zeta_1)
+        # From here only the antisense strand is used
+        e_torsion_indices = self.convert_torsion_indices_to_atom_indices(epsi_1)
+        z_torsion_indices = self.convert_torsion_indices_to_atom_indices(zeta_1)
 
-#         epsi = md.compute_dihedrals(self.dna, e_torsion_indices)
-#         zeta = md.compute_dihedrals(self.dna, z_torsion_indices)
+        epsi = md.compute_dihedrals(self.dna, e_torsion_indices)
+        zeta = md.compute_dihedrals(self.dna, z_torsion_indices)
 
-#         if degrees:
-#             epsi = np.degrees(epsi)
-#             zeta = np.degrees(zeta)
+        if degrees:
+            epsi = np.degrees(epsi)
+            zeta = np.degrees(zeta)
 
-#         print(epsi.shape, zeta.shape)
-#         return epsi, zeta
+        print(epsi.shape, zeta.shape)
+        return epsi, zeta
     
-#     def get_B_state(self,diff):
-#         """
-#         BI = 0, BII = 1
-#         """
-#         state = np.zeros_like(diff)
-#         state[diff < 0] = 0  # BI
-#         state[diff > 0] = 1  # BII
-#         return np.round(np.sum(state,axis=0)/state.shape[0],2)
+    def get_B_state(self,diff):
+        """
+        BI = 0, BII = 1
+        """
+        state = np.zeros_like(diff)
+        state[diff < 0] = 0  # BI
+        state[diff > 0] = 1  # BII
+        return np.round(np.sum(state,axis=0)/state.shape[0],2)
     
-#     def place_holder(self):
-#         def get_B_state(diff):
-#             state = np.zeros_like(diff)
-#             state[diff < 0] = 0  # BI
-#             state[diff > 0] = 1  # BII
-#             return np.round(np.sum(state,axis=0)/state.shape[0],2)
+    def place_holder(self):
+        def get_B_state(diff):
+            state = np.zeros_like(diff)
+            state[diff < 0] = 0  # BI
+            state[diff > 0] = 1  # BII
+            return np.round(np.sum(state,axis=0)/state.shape[0],2)
 
-#         from matplotlib.lines import Line2D
+        from matplotlib.lines import Line2D
 
-#         fig,ax = plt.subplots(ncols=2,nrows=epsi_t_haff.T.shape[0],figsize=(6,12),sharex=True,sharey=True)
+        fig,ax = plt.subplots(ncols=2,nrows=epsi_t_haff.T.shape[0],figsize=(6,12),sharex=True,sharey=True)
 
-#         for _,(e,z)in enumerate(zip(epsi_t_haff.T,zeta_t_haff.T)):
-#             d = e-z
-#             sns.kdeplot(d,ax=ax[_][0],fill=True,color='navy',label=get_B_state(d))
+        for _,(e,z)in enumerate(zip(epsi_t_haff.T,zeta_t_haff.T)):
+            d = e-z
+            sns.kdeplot(d,ax=ax[_][0],fill=True,color='navy',label=get_B_state(d))
 
-#         for _,(e,z)in enumerate(zip(epsi_d_haff.T,zeta_d_haff.T)):
-#             d = e-z
-#             sns.kdeplot(d,ax=ax[_][0],fill=True,color='cornflowerblue',label=get_B_state(d))
+        for _,(e,z)in enumerate(zip(epsi_d_haff.T,zeta_d_haff.T)):
+            d = e-z
+            sns.kdeplot(d,ax=ax[_][0],fill=True,color='cornflowerblue',label=get_B_state(d))
 
-#         for _,(e,z)in enumerate(zip(epsi_t_gca.T,zeta_t_gca.T)):
-#             d = e-z
-#             sns.kdeplot(d,ax=ax[_][1],fill=True,color='darkred',label=get_B_state(d))
+        for _,(e,z)in enumerate(zip(epsi_t_gca.T,zeta_t_gca.T)):
+            d = e-z
+            sns.kdeplot(d,ax=ax[_][1],fill=True,color='darkred',label=get_B_state(d))
 
-#         for _,(e,z)in enumerate(zip(epsi_d_gca.T,zeta_d_gca.T)):
-#             d = e-z
-#             sns.kdeplot(d,ax=ax[_][1],fill=True,color='coral',label=get_B_state(d))
+        for _,(e,z)in enumerate(zip(epsi_d_gca.T,zeta_d_gca.T)):
+            d = e-z
+            sns.kdeplot(d,ax=ax[_][1],fill=True,color='coral',label=get_B_state(d))
 
-#             ax[_][0].axvline(0,color='gray',ls=':')
-#             ax[_][1].axvline(0,color='gray',ls=':')
+            ax[_][0].axvline(0,color='gray',ls=':')
+            ax[_][1].axvline(0,color='gray',ls=':')
 
-#         for _ in range(epsi_t_haff.T.shape[0]):
-#             ax[_][1].legend()
-#             ax[_][0].legend()
-#             ax[_][0].set_ylabel(f'Step {_}')
+        for _ in range(epsi_t_haff.T.shape[0]):
+            ax[_][1].legend()
+            ax[_][0].legend()
+            ax[_][0].set_ylabel(f'Step {_}')
 
-#         ax[_][0].set_xlabel('$\epsilon - \zeta$')
-#         ax[_][1].set_xlabel('$\epsilon - \zeta$')
-#         ax[_][1].set_xticks([-90,0,90])
-#         ax[_][0].set_xlim(-181,181)
-#         ax[0][0].set_title('High Affinity')
-#         ax[0][1].set_title('GC-analogue')
+        ax[_][0].set_xlabel('$\epsilon - \zeta$')
+        ax[_][1].set_xlabel('$\epsilon - \zeta$')
+        ax[_][1].set_xticks([-90,0,90])
+        ax[_][0].set_xlim(-181,181)
+        ax[0][0].set_title('High Affinity')
+        ax[0][1].set_title('GC-analogue')
 
-#         # Define custom legend
-#         legend_elements = [Line2D([0], [0], color='cornflowerblue', lw=2, label='DNA-haff'),
-#                         Line2D([0], [0], color='coral', lw=2, label='DNA-gca'),
-#                         Line2D([0], [0], color='navy', lw=2, label='FI-haff'),
-#                         Line2D([0], [0], color='darkred', lw=2, label='FI-gca')]
+        # Define custom legend
+        legend_elements = [Line2D([0], [0], color='cornflowerblue', lw=2, label='DNA-haff'),
+                        Line2D([0], [0], color='coral', lw=2, label='DNA-gca'),
+                        Line2D([0], [0], color='navy', lw=2, label='FI-haff'),
+                        Line2D([0], [0], color='darkred', lw=2, label='FI-gca')]
 
 
-#         # Add the custom legend to the figure (NOT the subplot)
-#         fig.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.15, 0.89),title='BII fraction')
-#         fig.suptitle('Denstities of Anti Strand')
-#         fig.savefig('Anti_BII_densities.png',dpi=300,bbox_inches='tight')
+        # Add the custom legend to the figure (NOT the subplot)
+        fig.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.15, 0.89),title='BII fraction')
+        fig.suptitle('Denstities of Anti Strand')
+        fig.savefig('Anti_BII_densities.png',dpi=300,bbox_inches='tight')
 
 
 
