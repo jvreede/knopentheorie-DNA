@@ -1,2 +1,2 @@
 # knopentheorie-DNA
-DNA knopen
+Tutorial on making DNA knots
